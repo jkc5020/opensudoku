@@ -4,6 +4,7 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -44,6 +45,18 @@ public class TitleScreenActivity extends ThemedActivity {
         mSettingsButton.setOnClickListener((view) ->
                 startActivity(new Intent(this, GameSettingsActivity.class)));
 
+        mTakePicButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                try {
+                    Intent intent = new Intent();
+                    intent.setAction(MediaStore.ACTION_IMAGE_CAPTURE);
+                    startActivity(intent);
+                } catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+        });
         // check the preference to skip the title screen and launch the folder list activity
         // directly
         SharedPreferences gameSettings = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
