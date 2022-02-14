@@ -34,6 +34,7 @@ public class TitleScreenActivity extends ThemedActivity {
         mResumeButton = findViewById(R.id.resume_button);
         Button mSudokuListButton = findViewById(R.id.sudoku_lists_button);
         Button mSettingsButton = findViewById(R.id.settings_button);
+        Button mTakePicButton = findViewById(R.id.scan_puzzle);
 
         setupResumeButton();
 
