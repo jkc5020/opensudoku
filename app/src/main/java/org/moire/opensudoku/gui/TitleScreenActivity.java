@@ -1,6 +1,7 @@
 package org.moire.opensudoku.gui;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -15,6 +16,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -38,19 +40,24 @@ import java.util.Date;
 
 public class TitleScreenActivity extends ThemedActivity {
 
+    public static String currentPhotoPath;
     public static final int CAMERA_PERM_CODE = 101;
-    public static final int CAMERA_REQUEST_CODE = 102;
+    public static final int CAMERA_REQUEST_CODE = 1;
     private static final int REQUEST_TAKE_PHOTO = 1;
     private final int MENU_ITEM_SETTINGS = 0;
     private final int MENU_ITEM_ABOUT = 1;
     private final int DIALOG_ABOUT = 0;
     private Button mResumeButton;
 
+    private ImageView selectedImage;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_title_screen);
 
+        // TODO: 2/14/2022
+        this.selectedImage = findViewById(R.id.logo);
+        //
         mResumeButton = findViewById(R.id.resume_button);
         Button mSudokuListButton = findViewById(R.id.sudoku_lists_button);
         Button mSettingsButton = findViewById(R.id.settings_button);
@@ -91,7 +98,7 @@ public class TitleScreenActivity extends ThemedActivity {
                     (this,new String[] {Manifest.permission.CAMERA}, CAMERA_PERM_CODE);
         }
         else{
-            openCamera();
+            dispatchTakePictureIntent();
         }
     }
 
@@ -99,7 +106,11 @@ public class TitleScreenActivity extends ThemedActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == CAMERA_REQUEST_CODE) {
-            Bitmap image = (Bitmap) data.getExtras().get("data");
+            if(resultCode == Activity.RESULT_OK){
+                File f = new File(currentPhotoPath);
+                selectedImage.setImageURI(Uri.fromFile(f));
+            }
+
 
         }
     }
@@ -108,7 +119,7 @@ public class TitleScreenActivity extends ThemedActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if(requestCode == CAMERA_PERM_CODE){
             if(grantResults.length < 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
-                openCamera();
+                dispatchTakePictureIntent();
             }
             else{
                 Toast.makeText(this, "camera permission required to use camera", Toast.LENGTH_SHORT).show();
@@ -119,7 +130,7 @@ public class TitleScreenActivity extends ThemedActivity {
 
     }
     private File createImageFile() throws IOException {
-        String currentPhotoPath;
+
         // Create an image file name
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         String imageFileName = "JPEG_" + timeStamp + "_";
@@ -158,12 +169,7 @@ public class TitleScreenActivity extends ThemedActivity {
         }
     }
 
-    private void openCamera() {
-        Toast.makeText(this, "Camera open request", Toast.LENGTH_SHORT).show();
-        Intent camera = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        startActivityForResult(camera, CAMERA_REQUEST_CODE);
 
-    }
 
     private boolean canResume(long mSudokuGameID) {
         SudokuDatabase mDatabase = new SudokuDatabase(getApplicationContext());
